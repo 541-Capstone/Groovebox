@@ -36,7 +36,8 @@ private:
     //==============================================================================
     // Your private member variables go here...
     tracktion_engine::Engine engine { ProjectInfo::projectName };
-
+    int numTracks;
+    int numAudioTracks;
     /*te::Edit::Options editOptions{ engine,
         te::createEmptyEdit(engine),
         te::ProjectItemID::createNewID(0),

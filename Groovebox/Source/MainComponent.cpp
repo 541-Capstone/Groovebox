@@ -18,6 +18,9 @@ MainComponent::MainComponent()
     stopBtn.onClick = [this]() { stop(); };
     addTrackBtn.onClick = [this]() {addTrack(); };
 
+    numTracks = edit.getTrackList().size();
+    numAudioTracks = 1;
+
     // Make sure you set the size of the component after
     // you add any child components.
     setSize (600, 300);
@@ -94,9 +97,9 @@ void MainComponent::paint (juce::Graphics& g)
 
     // You can add your drawing code here!
     statusLbl.setText((juce::String)edit.getTransport().getCurrentPosition(), juce::NotificationType::dontSendNotification);
-    trackCountLbl.setText((juce::String)edit.getTrackList().size(), juce::NotificationType::dontSendNotification);
+    trackCountLbl.setText((juce::String)edit.getTrackList().size() + ";" + (juce::String)numTracks, juce::NotificationType::dontSendNotification);
     juce::Array<tracktion_engine::Track*> trackList = edit.getTrackList().objects;
-    juce::String trackNames = "";
+    juce::String trackNames = "";//(int)trackList.size() + "\n";
     for (int i = 0; i < trackList.size(); i++) {
         trackNames += trackList[i]->getName();
         trackNames += '\n';
@@ -110,38 +113,34 @@ void MainComponent::resized()
     // If you add any child components, this is where you should
     // update their positions.
     juce::Rectangle<int> bounds = getLocalBounds();
+    juce::Rectangle<int> buttonRect = getLocalBounds();
+    juce::Rectangle<int> textRect = buttonRect.removeFromBottom(buttonRect.getHeight() - 150);
 
     juce::FlexBox buttonBox{ juce::FlexBox::Direction::row,
                              juce::FlexBox::Wrap::noWrap,
                              juce::FlexBox::AlignContent::stretch,
                              juce::FlexBox::AlignItems::center,
-                             juce::FlexBox::JustifyContent::spaceAround };
+                             juce::FlexBox::JustifyContent::center };
 
     juce::FlexBox textBox{ juce::FlexBox::Direction::column,
                            juce::FlexBox::Wrap::noWrap,
                            juce::FlexBox::AlignContent::flexStart,
                            juce::FlexBox::AlignItems::flexStart,
-                           juce::FlexBox::JustifyContent::center
-    };
-
-    juce::FlexBox container{ juce::FlexBox::Direction::column,
-                             juce::FlexBox::Wrap::noWrap,
-                             juce::FlexBox::AlignContent::spaceAround,
-                             juce::FlexBox::AlignItems::center,
-                             juce::FlexBox::JustifyContent::center
+                           juce::FlexBox::JustifyContent::flexEnd
     };
 
     buttonBox.items.add(juce::FlexItem(150, 150, playBtn));
     buttonBox.items.add(juce::FlexItem(150, 150, stopBtn));
     buttonBox.items.add(juce::FlexItem(150, 150, addTrackBtn));
 
-    textBox.items.add(juce::FlexItem(150, 100, statusLbl));
-    textBox.items.add(juce::FlexItem(150, 100, trackCountLbl));
+    textBox.items.add(juce::FlexItem(150, 10, statusLbl));
+    textBox.items.add(juce::FlexItem(textRect.getWidth(), textRect.getHeight(), trackCountLbl));
 
-    container.items.add(buttonBox);
-    container.items.add(textBox);
+//    buttonRect.items.add(buttonBox);
+//    textRect.items.add(textBox);
 
-    container.performLayout(bounds);
+    buttonBox.performLayout(buttonRect);
+    textBox.performLayout(textRect);
 }
 
 void MainComponent::play() {
@@ -169,5 +168,9 @@ void MainComponent::stop() {
 }
 
 void MainComponent::addTrack() {
+    edit.ensureNumberOfAudioTracks(numAudioTracks + 1);
+    numTracks++;
+    numAudioTracks++;
+    DBG("Added track " + (juce::String)numAudioTracks + "\nNumber of tracks in edit: " + (juce::String) edit.getTrackList().size() + "\n");
     //edit.insertNewTrack(tracktion_engine::TrackInsertPoint::precedingTrackID, )
 }
