@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-//#include "Utilities.h"
+#include <vector>
 
 //==============================================================================
 /*
@@ -38,14 +38,10 @@ private:
     tracktion_engine::Engine engine { ProjectInfo::projectName };
     int numTracks;
     int numAudioTracks;
-    /*te::Edit::Options editOptions{ engine,
-        te::createEmptyEdit(engine),
-        te::ProjectItemID::createNewID(0),
-        te::Edit::EditRole::forEditing,
-        nullptr,
-        0 };*/
-
-
+    
+    //tracktion_engine::Track* currentTrack;
+    std::vector<tracktion_engine::Track*> audioTrackList;
+    int currentTrack;
 
     tracktion_engine::Edit edit{ engine,
                                  tracktion_engine::createEmptyEdit(engine),
@@ -56,6 +52,10 @@ private:
     juce::TextButton playBtn{ "Play" };
     juce::TextButton stopBtn{ "Stop" };
     juce::TextButton addTrackBtn{ "Add Track" };
+    juce::TextButton leftBtn{ "<<<" };
+    juce::TextButton rightBtn{ ">>>" };
+
+
     juce::Label statusLbl{ "statusLbl", "Status" };
     juce::Label trackCountLbl{ "trackCountLbl", "Track count" };
 
@@ -65,6 +65,8 @@ private:
     void stop();
     void record();
     void addTrack();
+    void nextTrack();
+    void prevTrack();
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

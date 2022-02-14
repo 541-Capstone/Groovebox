@@ -7,6 +7,8 @@ MainComponent::MainComponent()
     addAndMakeVisible(playBtn);
     addAndMakeVisible(stopBtn);
     addAndMakeVisible(addTrackBtn);
+    addAndMakeVisible(leftBtn);
+    addAndMakeVisible(rightBtn);
 
     addAndMakeVisible(statusLbl);
     addAndMakeVisible(trackCountLbl);
@@ -17,6 +19,8 @@ MainComponent::MainComponent()
     playBtn.onClick = [this]() { play(); };
     stopBtn.onClick = [this]() { stop(); };
     addTrackBtn.onClick = [this]() {addTrack(); };
+    rightBtn.onClick = [this]() {nextTrack(); };
+    leftBtn.onClick = [this]() {prevTrack(); };
 
     numTracks = edit.getTrackList().size();
     numAudioTracks = 1;
@@ -38,8 +42,8 @@ MainComponent::MainComponent()
         setAudioChannels (2, 2);
     }
 
-    //auto tracks = edit.trackCache;
-    //for(int i = 0; i < tracks.)
+    audioTrackList.push_back(edit.getTrackList().objects[edit.getTrackList().objects.size() - 1]);
+    currentTrack = 0;
 }
 
 MainComponent::~MainComponent()
@@ -101,6 +105,9 @@ void MainComponent::paint (juce::Graphics& g)
     juce::Array<tracktion_engine::Track*> trackList = edit.getTrackList().objects;
     juce::String trackNames = "";//(int)trackList.size() + "\n";
     for (int i = 0; i < trackList.size(); i++) {
+        if (trackList[i] == audioTrackList[currentTrack]) {
+            trackNames += "* ";
+        }
         trackNames += trackList[i]->getName();
         trackNames += '\n';
     }
@@ -129,15 +136,14 @@ void MainComponent::resized()
                            juce::FlexBox::JustifyContent::flexEnd
     };
 
-    buttonBox.items.add(juce::FlexItem(150, 150, playBtn));
-    buttonBox.items.add(juce::FlexItem(150, 150, stopBtn));
-    buttonBox.items.add(juce::FlexItem(150, 150, addTrackBtn));
+    buttonBox.items.add(juce::FlexItem(100, 100, playBtn));
+    buttonBox.items.add(juce::FlexItem(100, 100, stopBtn));
+    buttonBox.items.add(juce::FlexItem(100, 100, addTrackBtn));
+    buttonBox.items.add(juce::FlexItem(100, 100, leftBtn));
+    buttonBox.items.add(juce::FlexItem(100, 100, rightBtn));
 
     textBox.items.add(juce::FlexItem(150, 10, statusLbl));
     textBox.items.add(juce::FlexItem(textRect.getWidth(), textRect.getHeight(), trackCountLbl));
-
-//    buttonRect.items.add(buttonBox);
-//    textRect.items.add(textBox);
 
     buttonBox.performLayout(buttonRect);
     textBox.performLayout(textRect);
@@ -171,6 +177,20 @@ void MainComponent::addTrack() {
     edit.ensureNumberOfAudioTracks(numAudioTracks + 1);
     numTracks++;
     numAudioTracks++;
+    audioTrackList.push_back(edit.getTrackList().objects[edit.getTrackList().objects.size() - 1]);
     DBG("Added track " + (juce::String)numAudioTracks + "\nNumber of tracks in edit: " + (juce::String) edit.getTrackList().size() + "\n");
-    //edit.insertNewTrack(tracktion_engine::TrackInsertPoint::precedingTrackID, )
+}
+
+void MainComponent::nextTrack() {
+    if (currentTrack < audioTrackList.size() - 1) {
+        currentTrack++;
+        DBG("Paged up. Current track:" + (juce::String)currentTrack + "\n");
+    }
+}
+
+void MainComponent::prevTrack() {
+    if (currentTrack > 0) {
+        currentTrack--;
+        DBG("Paged up. Current track:" + (juce::String)currentTrack + "\n");
+    }
 }
